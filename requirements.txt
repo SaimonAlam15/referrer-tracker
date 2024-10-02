@@ -7,3 +7,4 @@ python-dotenv>=1.0.0
 snowflake-connector-python>=2.9.0
 scikit-learn>=1.4.2
 imbalanced-learn>=0.12.3
+neo4j>=5.7.0
