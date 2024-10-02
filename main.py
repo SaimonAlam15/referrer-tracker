@@ -179,8 +179,8 @@ def generic_referrers():
         matching_data.sort_values(by='HAS_REFERRED', inplace=True)
         st.dataframe(matching_data)
 
-
-pages = {"Data Analysis":eda, "Referrers - Generic": generic_referrers, "Referrers - Job Specific": job_specific_referrers}
+# "Data Analysis":eda, 
+pages = {"Referrers - Generic": generic_referrers, "Referrers - Job Specific": job_specific_referrers}
 
 def main():
     st.set_page_config(layout="wide")
