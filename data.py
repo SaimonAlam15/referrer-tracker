@@ -1,5 +1,3 @@
-from functools import lru_cache
-
 from db import get_snowflake_connection
 import pandas as pd
 import numpy as np
@@ -7,12 +5,13 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 from imblearn.over_sampling import SMOTE
+import streamlit as st
 
 
 conn = get_snowflake_connection()
 
 
-@lru_cache(maxsize=None)
+@st.cache_resource
 def get_data(query):
     if not query:
         return None
