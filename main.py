@@ -23,10 +23,10 @@ def cached_generic_model():
 def eda():
     data = get_data(MODEL_1_TRAINING_DATA_QUERY)
     st.write(data.head(50))
-    _, _, _, features = cached_model()
-    st.write("Features:")
-    for feature in features:
-        st.write(feature)
+    # _, _, _, features = cached_model()
+    # st.write("Features:")
+    # for feature in features:
+    #     st.write(feature)
 
 
 def job_specific_referrers():
