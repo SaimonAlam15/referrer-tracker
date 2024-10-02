@@ -58,9 +58,9 @@ def train_model(X_train, y_train):
     #     'min_samples_split': 5, 'n_estimators': 1000
     # }
     # reg = RandomForestClassifier(**params)
-    params = {'n_estimators': 5, 'min_samples_split': 10, 'min_samples_leaf': 2, 'max_depth': 2, 'criterion': 'gini'}
+    params = {'n_estimators': 10, 'min_samples_split': 10, 'min_samples_leaf': 2, 'max_depth': 5, 'criterion': 'gini'}
     # Initialize the RandomForestClassifier with the new parameters
-    reg = RandomForestClassifier(**params, n_jobs=-1)
+    reg = RandomForestClassifier(**params, n_jobs=1)
     reg.fit(X_train, y_train)
     return reg
 
