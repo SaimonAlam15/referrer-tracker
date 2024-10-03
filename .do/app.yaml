@@ -1,0 +1,8 @@
+name: referrer_tracker
+services:
+- dockerfile_path: Dockerfile
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: SaimonAlam15/referrer-tracker
+  name: referrer_tracker

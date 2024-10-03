@@ -17,3 +17,14 @@
     ```sh
     streamlit run main.py
     ```
+
+## OR to run it with docker
+
+1. **Make sure the `.env` file exists in root directory**
+
+2. **Launch Docker  on your local machine**
+
+3. **Run the following command:**
+   ```sh
+   docker-compose --env-file .env up --build
+   ```

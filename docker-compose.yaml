@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  app:
+    image: referrer-tracker:latest
+    ports:
+      - "8501:8501"
+    restart: always
+    environment:
+      - USER=${USER}
+      - PASSWORD=${PASSWORD}
+      - DATABASE=${DATABASE}
+      - WAREHOUSE=${WAREHOUSE}
+      - SCHEMA=${SCHEMA}
+      - ACCOUNT=${ACCOUNT}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app

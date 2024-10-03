@@ -65,14 +65,22 @@ def job_specific_referrers():
         # st.write("Predictions:", list(y_pred)[:50])
         st.write("Count of 0's in y_pred:", np.sum(y_pred == 0))
         st.write("Count of 1's in y_pred:", np.sum(y_pred == 1))
-        matching_data = pd.DataFrame()
+
+        rows = []
         for i, pred in enumerate(y_pred):
             if pred == 1:
-                matching_data = matching_data.append(
-                    data.iloc[[i]][['EMAIL', 'SOURCE', 'CAREER_LEVEL', 'TITLE_OF_LAST_POSITION', 'FIELD_OF_EXPERTISE', 'INDUSTRY', 'LOCATION', 'RECENTLY_ACTIVE']],
-                    ignore_index=True
-                )
-        # st.write(matching_data)
+                rows.append({
+                    'EMAIL': data.iloc[i]['EMAIL'],
+                    'SOURCE': data.iloc[i]['SOURCE'],
+                    'CAREER_LEVEL': data.iloc[i]['CAREER_LEVEL'],
+                    'TITLE_OF_LAST_POSITION': data.iloc[i]['TITLE_OF_LAST_POSITION'],
+                    'FIELD_OF_EXPERTISE': data.iloc[i]['FIELD_OF_EXPERTISE'],
+                    'INDUSTRY': data.iloc[i]['INDUSTRY'],
+                    'LOCATION': data.iloc[i]['LOCATION'],
+                    'RECENTLY_ACTIVE': data.iloc[i]['RECENTLY_ACTIVE']
+                })
+        
+        matching_data = pd.DataFrame(rows)
         st.dataframe(matching_data)
                 
         # Get the top 5 most frequently occurring values for 'CAREER_LEVEL'
@@ -167,14 +175,20 @@ def generic_referrers():
         # st.write("Predictions:", list(y_pred)[:50])
         st.write("Count of 0's in y_pred:", np.sum(y_pred == 0))
         st.write("Count of 1's in y_pred:", np.sum(y_pred == 1))
-        matching_data = pd.DataFrame()
+
+        rows = []
         for i, pred in enumerate(y_pred):
             if pred == 1:
-                matching_data = matching_data.append(
-                    data.iloc[[i]][['EMAIL', 'SOURCE', 'CAREER_LEVEL', 'TITLE_OF_LAST_POSITION', 'FIELD_OF_EXPERTISE', 'TARGET']],
-                    ignore_index=True
-                )
-        # st.write(matching_data)
+                rows.append({
+                    'EMAIL': data.iloc[i]['EMAIL'],
+                    'SOURCE': data.iloc[i]['SOURCE'],
+                    'CAREER_LEVEL': data.iloc[i]['CAREER_LEVEL'],
+                    'TITLE_OF_LAST_POSITION': data.iloc[i]['TITLE_OF_LAST_POSITION'],
+                    'FIELD_OF_EXPERTISE': data.iloc[i]['FIELD_OF_EXPERTISE'],
+                    'TARGET': data.iloc[i]['TARGET']
+                })
+        
+        matching_data = pd.DataFrame(rows)
         matching_data.rename(columns={'TARGET': 'HAS_REFERRED'}, inplace=True)
         matching_data.sort_values(by='HAS_REFERRED', inplace=True)
         st.dataframe(matching_data)
@@ -183,7 +197,7 @@ pages = {"Data Analysis":eda, "Referrers - Generic": generic_referrers, "Referre
 
 def main():
     st.set_page_config(layout="wide")
-    st.title('Referrer Finder')
+    st.markdown("<h1 style='text-align: center;'>Referrer Finder</h1>", unsafe_allow_html=True)
     selected_page = st.sidebar.selectbox("Choose a page", options=list(pages.keys()))
     pages[selected_page]()
 
