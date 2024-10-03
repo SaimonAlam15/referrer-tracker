@@ -61,7 +61,7 @@ def train_model(X_train, y_train):
         'criterion': 'gini', 'max_depth': 5, 'min_samples_leaf': 4,
         'min_samples_split': 10, 'n_estimators': 50
     }
-    reg = RandomForestClassifier(**params)
+    reg = RandomForestClassifier(n_estimators=100, random_state = 0)
     reg.fit(X_train, y_train)
     return reg
 
