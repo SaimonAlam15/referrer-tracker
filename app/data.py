@@ -10,7 +10,7 @@ import streamlit as st
 conn = get_snowflake_connection()
 
 
-@st.cache_resource
+# @st.cache_resource
 def get_data(query):
     if not query:
         return None

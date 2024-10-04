@@ -9,12 +9,12 @@ from data import get_data, encode_data
 from queries import MODEL_1_TRAINING_DATA_QUERY, TEST_DATA_QUERY
 
 
-@st.cache_resource
+# @st.cache_resource
 def cached_model():
     return get_model()
 
 
-@st.cache_resource
+# @st.cache_resource
 def cached_generic_model():
     return get_generic_model()
 
