@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 from model import get_model
 from model_generic_rforest import get_generic_model, encode_data as encode_generic_data
@@ -23,10 +22,6 @@ def cached_generic_model():
 def eda():
     data = get_data(MODEL_1_TRAINING_DATA_QUERY)
     st.write(data.head(50))
-    # _, _, _, features = cached_model()
-    # st.write("Features:")
-    # for feature in features:
-    #     st.write(feature)
 
 
 def job_specific_referrers():
@@ -63,8 +58,9 @@ def job_specific_referrers():
         # print('Features', features)
         y_pred = model.predict(encoded_data[features].values)
         # st.write("Predictions:", list(y_pred)[:50])
-        st.write("Count of 0's in y_pred:", np.sum(y_pred == 0))
-        st.write("Count of 1's in y_pred:", np.sum(y_pred == 1))
+        st.write("Total:", len(y_pred))
+        st.write("Number of likely referrers:", np.sum(y_pred == 1))
+        st.write("Number of unlikely referrers:", np.sum(y_pred == 0))
 
         rows = []
         for i, pred in enumerate(y_pred):
@@ -77,10 +73,12 @@ def job_specific_referrers():
                     'FIELD_OF_EXPERTISE': data.iloc[i]['FIELD_OF_EXPERTISE'],
                     'INDUSTRY': data.iloc[i]['INDUSTRY'],
                     'LOCATION': data.iloc[i]['LOCATION'],
-                    'RECENTLY_ACTIVE': data.iloc[i]['RECENTLY_ACTIVE']
+                    'RECENTLY_ACTIVE': data.iloc[i]['RECENTLY_ACTIVE'],
+                    'HAS_REFERRED': data.iloc[i]['TARGET']
                 })
         
         matching_data = pd.DataFrame(rows)
+        matching_data.sort_values(by='HAS_REFERRED', inplace=True)
         st.dataframe(matching_data)
                 
         # Get the top 5 most frequently occurring values for 'CAREER_LEVEL'
@@ -173,8 +171,9 @@ def generic_referrers():
         # print('Features', features)
         y_pred = model.predict(encoded_data[features].values)
         # st.write("Predictions:", list(y_pred)[:50])
-        st.write("Count of 0's in y_pred:", np.sum(y_pred == 0))
-        st.write("Count of 1's in y_pred:", np.sum(y_pred == 1))
+        st.write("Total:", len(y_pred))
+        st.write("Number of likely referrers:", np.sum(y_pred == 1))
+        st.write("Number of unlikely referrers:", np.sum(y_pred == 0))
 
         rows = []
         for i, pred in enumerate(y_pred):
@@ -185,11 +184,10 @@ def generic_referrers():
                     'CAREER_LEVEL': data.iloc[i]['CAREER_LEVEL'],
                     'TITLE_OF_LAST_POSITION': data.iloc[i]['TITLE_OF_LAST_POSITION'],
                     'FIELD_OF_EXPERTISE': data.iloc[i]['FIELD_OF_EXPERTISE'],
-                    'TARGET': data.iloc[i]['TARGET']
+                    'HAS_REFERRED': data.iloc[i]['TARGET']
                 })
         
         matching_data = pd.DataFrame(rows)
-        matching_data.rename(columns={'TARGET': 'HAS_REFERRED'}, inplace=True)
         matching_data.sort_values(by='HAS_REFERRED', inplace=True)
         st.dataframe(matching_data)
 

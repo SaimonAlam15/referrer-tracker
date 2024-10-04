@@ -1,15 +1,5 @@
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
-
-from sklearn.model_selection import train_test_split
-
 # Classifer Models
 from sklearn.ensemble import RandomForestClassifier
-
-from imblearn.over_sampling import SMOTE
-from sklearn.metrics import precision_recall_fscore_support as score
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, classification_report, confusion_matrix
 
 from data import get_data, encode_data, balance_data, split_data
 from queries import MODEL_1_TRAINING_DATA_QUERY
@@ -29,7 +19,7 @@ def train_model(X_train, y_train):
         'criterion': 'gini', 'max_depth': 20, 'min_samples_leaf': 1,
         'min_samples_split': 5, 'n_estimators': 1000
     }
-    reg = RandomForestClassifier(n_estimators=10, random_state = 0)
+    reg = RandomForestClassifier(**params)
     reg.fit(X_train, y_train)
     return reg
 
