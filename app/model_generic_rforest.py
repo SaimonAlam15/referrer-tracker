@@ -22,22 +22,24 @@ def encode_data(input_df):
         feature_names.extend(cols)
 
     expertise_df = input_df['FIELD_OF_EXPERTISE'].str.get_dummies(sep=",").add_prefix('FIELD_OF_EXPERTISE_')
-    input_df = input_df.join(expertise_df)
+    expertise_df = expertise_df.loc[:, expertise_df.columns.isin(feature_names)]
+    input_df = pd.concat([input_df.drop('FIELD_OF_EXPERTISE', axis=1), expertise_df], axis=1)
     
     new_df = pd.get_dummies(input_df, columns=categorical_columns[:-1])
     
-    df_merged = pd.concat([input_df, new_df])
+    df_merged = pd.concat([input_df, new_df]).drop_duplicates(['ID'], keep='last')
 
     
     # Drop the original categorical columns
-    df_merged = df_merged.drop(categorical_columns, axis=1)
+    df_merged = df_merged.drop(categorical_columns[:-1], axis=1)
 
-    return df_merged.drop_duplicates(['ID'], keep='last'), feature_names
+    return df_merged, feature_names
 
 
 def process_data(input_df):
     df_merged, feature_names = encode_data(input_df)
     print('Total rows:', len(df_merged))
+    print('Total columns:', len(df_merged.columns))
     X = df_merged[feature_names]
     y = df_merged['TARGET']
     X_balanced, y_balanced = balance_data(X, y)
