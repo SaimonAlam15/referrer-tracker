@@ -60,7 +60,8 @@ def train_model(X_train, y_train):
 def get_generic_model():
     data = get_data(MODEL_2_TRAINING_DATA_QUERY)
     X_train, X_test, y_train, y_test, features = process_data(data)
-    model = train_model(X_train, y_train)
+    # model = train_model(X_train, y_train)
+    model = None
     del data, X_train, y_train
     return model, X_test, y_test, features
 
