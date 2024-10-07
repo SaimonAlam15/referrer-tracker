@@ -40,11 +40,12 @@ def encode_data(input_df):
 
 def process_data(input_df):
     df_merged, feature_names = encode_data(input_df)
-    X = df_merged[feature_names]
-    y = df_merged['TARGET']
-    X_balanced, y_balanced = balance_data(X, y)
-    X_train, X_test, y_train, y_test = split_data(X_balanced, y_balanced)
-    return X_train, X_test, y_train, y_test, feature_names
+    # X = df_merged[feature_names]
+    # y = df_merged['TARGET']
+    # X_balanced, y_balanced = balance_data(X, y)
+    # X_train, X_test, y_train, y_test = split_data(X_balanced, y_balanced)
+    # return X_train, X_test, y_train, y_test, feature_names
+    return None, None, None, None, None
 
 
 def train_model(X_train, y_train):
