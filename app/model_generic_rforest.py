@@ -12,28 +12,28 @@ def encode_data(input_df):
     categorical_columns = ['SOURCE', 'CAREER_LEVEL', 'TITLE_OF_LAST_POSITION', 'FIELD_OF_EXPERTISE']
     filtered_df = input_df[input_df['TARGET'] == 1]
     feature_names = []
+
     for col in categorical_columns:
-        cols = []
         if col == 'FIELD_OF_EXPERTISE':
-            value_counts = filtered_df['FIELD_OF_EXPERTISE'].str.split(',').explode().value_counts().nlargest(10)
-            cols = [f'FIELD_OF_EXPERTISE_{val}' for val in value_counts.index]
+            value_counts = filtered_df[col].str.split(',').explode().value_counts().nlargest(10)
+            cols = [f'{col}_{val}' for val in value_counts.index]
         else:
             value_counts = filtered_df[col].value_counts().nlargest(5)
             cols = [f'{col}_{val}' for val in value_counts.index]
         feature_names.extend(cols)
 
+    # Create dummy variables for 'FIELD_OF_EXPERTISE'
     expertise_df = input_df['FIELD_OF_EXPERTISE'].str.get_dummies(sep=",").add_prefix('FIELD_OF_EXPERTISE_')
     input_df = pd.concat([input_df.drop('FIELD_OF_EXPERTISE', axis=1), expertise_df], axis=1)
-    
-    new_df = pd.get_dummies(input_df, columns=categorical_columns[:-1])
-    
-    df_merged = pd.concat([input_df, new_df]).drop_duplicates(['ID'], keep='last')
-    
-    # Drop the original categorical columns
-    df_merged = df_merged.drop(categorical_columns[:-1], axis=1)
 
-    # Clean up intermediate DataFrames to free memory
-    del filtered_df, expertise_df, new_df
+    # Create dummy variables for other categorical columns
+    new_df = pd.get_dummies(input_df, columns=categorical_columns[:-1])
+
+    # Merge and drop duplicates
+    df_merged = pd.concat([input_df, new_df], axis=1).drop_duplicates(subset=['ID'], keep='last')
+
+    # Drop the original categorical columns
+    df_merged = df_merged.drop(columns=categorical_columns[:-1])
 
     return df_merged, feature_names
 
@@ -45,7 +45,7 @@ def process_data(input_df):
     # X_balanced, y_balanced = balance_data(X, y)
     # X_train, X_test, y_train, y_test = split_data(X_balanced, y_balanced)
     # return X_train, X_test, y_train, y_test, feature_names
-    return None, None, None, None, None
+    return None, None, None, None, feature_names
 
 
 def train_model(X_train, y_train):
