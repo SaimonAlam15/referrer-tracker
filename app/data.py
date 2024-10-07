@@ -5,11 +5,13 @@ from sklearn.model_selection import train_test_split
 
 from imblearn.over_sampling import SMOTE
 
+import streamlit as st
+
 
 conn = get_snowflake_connection()
 
 
-# @st.cache_resource
+@st.cache_resource
 def get_data(query):
     if not query:
         return None
