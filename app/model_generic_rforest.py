@@ -52,7 +52,7 @@ def train_model(X_train, y_train):
         'criterion': 'gini', 'max_depth': 20, 'min_samples_leaf': 1,
         'min_samples_split': 5, 'n_estimators': 1000
     }
-    reg = RandomForestClassifier()
+    reg = RandomForestClassifier(n_estimators=100, max_depth=20, n_jobs=-1)
     reg.fit(X_train, y_train)
     return reg
 
