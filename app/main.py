@@ -164,7 +164,7 @@ def generic_referrers():
         data = get_data(TEST_DATA_QUERY)
         encoded_data, _ = encode_generic_data(data)
         
-        model, x_test, y_test, features = cached_generic_model()
+        model, _, _, features = cached_generic_model()
         encoded_data = encoded_data.reindex(columns=features, fill_value=0.0)
         # y_pred = model.predict(x_test.values)
         # print('Encoded columns', list(encoded_data.columns)[: 20])
@@ -190,8 +190,9 @@ def generic_referrers():
         matching_data = pd.DataFrame(rows)
         matching_data.sort_values(by='HAS_REFERRED', inplace=True)
         st.dataframe(matching_data)
+        del matching_data, rows, data
 
-pages = {"Data Analysis":eda, "Referrers - Generic": generic_referrers, "Referrers - Job Specific": job_specific_referrers}
+pages = {"Data Analysis":eda, "Referrers - Generic": generic_referrers} #"Referrers - Job Specific": job_specific_referrers
 
 def main():
     st.set_page_config(layout="wide")

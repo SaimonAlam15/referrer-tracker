@@ -32,6 +32,9 @@ def encode_data(input_df):
     # Drop the original categorical columns
     df_merged = df_merged.drop(categorical_columns[:-1], axis=1)
 
+    # Clean up intermediate DataFrames to free memory
+    del filtered_df, expertise_df, new_df
+
     return df_merged, feature_names
 
 
@@ -58,6 +61,7 @@ def get_generic_model():
     data = get_data(MODEL_2_TRAINING_DATA_QUERY)
     X_train, X_test, y_train, y_test, features = process_data(data)
     model = train_model(X_train, y_train)
+    del data, X_train, y_train
     return model, X_test, y_test, features
 
 
