@@ -3,13 +3,13 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from model import get_model
-from model_generic_rforest import get_generic_model, encode_data as encode_generic_data
-from data import get_data, encode_data
+from model import get_model, encode_data
+from model_generic_rforest import get_generic_model
+from data import get_data, encode_data as encode_generic_data
 from queries import MODEL_1_TRAINING_DATA_QUERY, TEST_DATA_QUERY
 
 
-# @st.cache_resource
+@st.cache_resource
 def cached_model():
     return get_model()
 
@@ -22,7 +22,7 @@ def cached_generic_model():
 def eda():
     data = get_data(MODEL_1_TRAINING_DATA_QUERY)
     st.write(data.head(50))
-    
+
 
 def job_specific_referrers():
     job_location = st.sidebar.multiselect(
@@ -51,7 +51,7 @@ def job_specific_referrers():
         data['LOCATION'] = ','.join(job_location)
         encoded_data, _ = encode_data(data)
         
-        model, x_test, y_test, features = cached_model()
+        model, _, _, features = cached_model()
         encoded_data = encoded_data.reindex(columns=features, fill_value=0.0)
         # y_pred = model.predict(x_test.values)
         # print('Encoded columns', list(encoded_data.columns)[: 20])
@@ -192,7 +192,8 @@ def generic_referrers():
         st.dataframe(matching_data)
         del matching_data, rows, data
 
-pages = {"Data Analysis":eda, "Referrers - Generic": generic_referrers} #"Referrers - Job Specific": job_specific_referrers
+pages = {"Data Analysis": eda, "Referrers - Generic": generic_referrers, "Referrers - Job Specific": job_specific_referrers}
+
 
 def main():
     st.set_page_config(layout="wide")

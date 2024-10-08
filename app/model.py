@@ -1,12 +1,55 @@
 # Classifer Models
 from sklearn.ensemble import RandomForestClassifier
+import pandas as pd
 
-from data import get_data, encode_data, balance_data, split_data
+from data import get_data, balance_data, split_data
 from queries import MODEL_1_TRAINING_DATA_QUERY
+
+
+def encode_data(input_df):
+    categorical_columns = [
+        'SOURCE', 'CAREER_LEVEL', 'TITLE_OF_LAST_POSITION', 'FIELD_OF_EXPERTISE', 
+        'INDUSTRY', 'LOCATION'
+    ]
+    filtered_df = input_df[input_df['TARGET'] == 1]
+    feature_names = []
+    cols = []
+    for col in categorical_columns:
+        if col in ['FIELD_OF_EXPERTISE', 'LOCATION']:
+            value_counts = filtered_df[col].str.split(',').explode().value_counts().nlargest(10)
+            cols = [f'{col}_{val}' for val in value_counts.index]
+        else:
+            value_counts = filtered_df[col].value_counts().nlargest(5)
+            cols = [f'{col}_{val}' for val in value_counts.index]
+        feature_names.extend(cols)
+
+    expertise_df = input_df['FIELD_OF_EXPERTISE'].str.get_dummies(sep=",").add_prefix('FIELD_OF_EXPERTISE_')
+    expertise_df = expertise_df.loc[:, expertise_df.columns.isin(feature_names)]
+    input_df = input_df.drop('FIELD_OF_EXPERTISE', axis=1)
+    input_df = input_df.join(expertise_df)
+
+    location_df = input_df['LOCATION'].str.get_dummies(sep=",").add_prefix('LOCATION_')
+    location_df = location_df.loc[:, location_df.columns.isin(feature_names)]
+    input_df = input_df.drop('LOCATION', axis=1)
+    input_df = input_df.join(location_df)
+
+    new_df = pd.get_dummies(input_df, columns=['SOURCE', 'CAREER_LEVEL', 'TITLE_OF_LAST_POSITION', 'INDUSTRY'])
+    new_df = new_df.loc[:, new_df.columns.isin(feature_names) &
+                        ~new_df.columns.str.startswith(('FIELD_OF_EXPERTISE', 'LOCATION'))]
+
+    # df_merged = pd.concat([input_df, new_df]).drop_duplicates(['ID'], keep='last')
+    input_df = input_df.drop(['SOURCE', 'CAREER_LEVEL', 'TITLE_OF_LAST_POSITION', 'INDUSTRY'], axis=1).fillna(0)
+    input_df = input_df.join(new_df)
+
+    # Drop the original categorical columns
+    # df_merged = df_merged.drop(['SOURCE', 'CAREER_LEVEL', 'TITLE_OF_LAST_POSITION', 'INDUSTRY'], axis=1).fillna(0)
+    return input_df.drop_duplicates(['ID'], keep='last'), feature_names
 
 
 def process_data(input_df):
     df_merged, feature_names = encode_data(input_df)
+    print('Total rows:', len(df_merged))
+    print('Total columns:', len(df_merged.columns))
     X = df_merged[feature_names]
     y = df_merged['TARGET']
     X_balanced, y_balanced = balance_data(X, y)
@@ -19,7 +62,7 @@ def train_model(X_train, y_train):
         'criterion': 'gini', 'max_depth': 20, 'min_samples_leaf': 1,
         'min_samples_split': 5, 'n_estimators': 1000
     }
-    reg = RandomForestClassifier(**params)
+    reg = RandomForestClassifier(n_estimators=100, max_depth=20, n_jobs=-1)
     reg.fit(X_train, y_train)
     return reg
 
