@@ -81,7 +81,7 @@ def job_specific_referrers():
         # Add labels and title
         ax.set_xlabel('CAREER LEVEL')
         ax.set_ylabel('Number of Referrers')
-        ax.set_title('Top 5 Most Frequent Career levels amongst predicted referrers')
+        ax.set_title('Top 5 most frequent career levels amongst predicted referrers')
 
         # Display the chart in Streamlit
         st.pyplot(fig)
@@ -96,8 +96,8 @@ def job_specific_referrers():
         # Add labels and title
         ax2.set_xlabel('DESIGNATION')
         ax2.set_ylabel('Number of Referrers')
-        ax2.set_title('Top 5 Most Frequent designations amongst predicted referrers')
-
+        ax2.set_title('Top 5 most frequent designations amongst predicted referrers')
+        fig2.autofmt_xdate(rotation=45)
         st.pyplot(fig2)
 
         
@@ -111,7 +111,7 @@ def job_specific_referrers():
         # Add labels and title
         ax3.set_xlabel('FIELD OF EXPERTISE')
         ax3.set_ylabel('Number of Referrers')
-        ax3.set_title('Top 5 Fields of Expertise Amongst Referrers')
+        ax3.set_title('Top 5 fields of expertise amongst predicted referrers')
 
         # Rotate x-axis labels for better visibility
         # st.pyplot(fig3, use_container_width=True)
@@ -127,7 +127,7 @@ def job_specific_referrers():
         # Add labels and title
         ax4.set_xlabel('SOURCE')
         ax4.set_ylabel('Number of Referrers')
-        ax4.set_title('Top 5 Sources Amongst Referrers')
+        ax4.set_title('Top 5 sources amongst predicted referrers')
 
         st.pyplot(fig4)
 
@@ -141,7 +141,7 @@ def job_specific_referrers():
         # Create a pie chart
         fig5, ax5 = plt.subplots()
         ax5.pie([len(filtered_rows), count - len(filtered_rows)], labels=['ACTIVE', 'INACTIVE'], autopct='%1.1f%%')
-        ax5.set_title('Percentage of referrers who have been active in the last 60 days')
+        ax5.set_title('Percentage of predicted referrers who have been active in the last 60 days')
 
         # Display the chart in Streamlit
         st.pyplot(fig5)
