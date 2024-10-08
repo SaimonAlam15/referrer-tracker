@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from model import get_model, encode_data
 from model_generic_rforest import get_generic_model
 from data import get_data, encode_data as encode_generic_data
-from queries import MODEL_1_TRAINING_DATA_QUERY, TEST_DATA_QUERY
+from queries import TEST_DATA_QUERY, DATA_ANALYSIS_QUERY
 
 
 @st.cache_resource
@@ -20,8 +20,8 @@ def cached_generic_model():
 
 
 def eda():
-    data = get_data(MODEL_1_TRAINING_DATA_QUERY)
-    st.write(data.head(50))
+    data = get_data(DATA_ANALYSIS_QUERY)
+    st.dataframe(data)
 
 
 def job_specific_referrers():
