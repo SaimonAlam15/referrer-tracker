@@ -5,17 +5,12 @@ import matplotlib.pyplot as plt
 
 from model_generic_rforest import get_generic_model
 from data import get_data, encode_data as encode_generic_data
-from queries import TEST_DATA_QUERY, DATA_ANALYSIS_QUERY
+from queries import TEST_DATA_QUERY
 
 
 @st.cache_resource
 def cached_generic_model():
     return get_generic_model()
-
-
-def eda():
-    data = get_data(DATA_ANALYSIS_QUERY)
-    st.dataframe(data)
 
 
 def generic_referrers():
@@ -49,6 +44,7 @@ def generic_referrers():
         
         matching_data = pd.DataFrame(rows)
         matching_data.sort_values(by='HAS_REFERRED', inplace=True)
+        matching_data.reset_index(drop=True, inplace=True)
         st.dataframe(matching_data)
 
          # Get the top 5 most frequently occurring values for 'CAREER_LEVEL'

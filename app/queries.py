@@ -210,16 +210,11 @@ DATA_ANALYSIS_QUERY = """
             j.remote_job,
             j.location,
             (
-                case when DATEDIFF(day, c.last_activity_time, current_date()) <= 60 then 1.0::float
-                else 0.0::float
+                case when DATEDIFF(day, c.last_activity_time, current_date()) <= 60 then 'Yes'
+                else 'No'
                 end
             )
-            as RECENTLY_ACTIVE,
-            (
-                case when r.CANDIDATE_EMAIL is null then 0.0::float
-                else 1.0::float
-                end
-            ) as TARGET
+            as RECENTLY_ACTIVE
         from referrers r
         inner join CANDIDATES c
             on r.CANDIDATE_EMAIL = c.EMAIL

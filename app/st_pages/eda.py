@@ -6,7 +6,9 @@ from queries import DATA_ANALYSIS_QUERY
 
 
 def eda():
+    st.markdown("<h2 style='text-align: center; color: #aba4a4'>Referrer Data & Stats</h2>", unsafe_allow_html=True)
     data = get_data(DATA_ANALYSIS_QUERY)
+    data['ID'] = data['ID'].astype(str)
     st.dataframe(data)
 
     # Get the top 5 most frequently occurring values for 'CAREER_LEVEL'
