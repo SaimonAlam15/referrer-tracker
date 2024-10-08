@@ -14,7 +14,7 @@ def cached_model():
     return get_model()
 
 
-# @st.cache_resource
+@st.cache_resource
 def cached_generic_model():
     return get_generic_model()
 
@@ -22,8 +22,7 @@ def cached_generic_model():
 def eda():
     data = get_data(MODEL_1_TRAINING_DATA_QUERY)
     st.write(data.head(50))
-    model, _, _, features = cached_generic_model()
-
+    
 
 def job_specific_referrers():
     job_location = st.sidebar.multiselect(
