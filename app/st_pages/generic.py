@@ -26,13 +26,18 @@ def generic_referrers():
         y_pred = model.predict(encoded_data[features].values)
         # st.write("Predictions:", list(y_pred)[:50])
         st.write("Total:", len(y_pred))
-        st.write("Number of likely referrers:", np.sum(y_pred == 1))
-        st.write("Number of unlikely referrers:", np.sum(y_pred == 0))
+        st.write("Total predictions equal to 0%:", np.sum(y_pred == 0))
+        st.write("Total predictions below 50%:", np.sum(y_pred <= 0.5))
+        st.write("Total predictions between 50 and 70%:", np.sum((y_pred > 0.5) & (y_pred <= 0.7)))
+        st.write("Total predictions between 70 and 90%:", np.sum((y_pred > 0.7) & (y_pred <= 0.9)))
+        st.write("Total predictions between 90 and 100%:", np.sum((y_pred > 0.9) & (y_pred <= 1.0)))
+        st.write("Total predictions equal to 1:", np.sum(y_pred == 1.0))
 
         rows = []
         for i, pred in enumerate(y_pred):
-            if pred == 1:
+            if pred > 0:
                 rows.append({
+                    'SCORE': pred,
                     'FIRST_NAME': data.iloc[i]['FIRST_NAME'],
                     'LAST_NAME': data.iloc[i]['LAST_NAME'],
                     'EMAIL': data.iloc[i]['EMAIL'],
@@ -46,7 +51,8 @@ def generic_referrers():
         
         matching_data = pd.DataFrame(rows)
         # matching_data.to_csv('/Users/saimonalam/Documents/predicted_referrers_2.csv', index=False)
-        matching_data.sort_values(by='HAS_REFERRED', inplace=True)
+        matching_data.sort_values(by='SCORE', inplace=True, ascending=False)
+        matching_data['SCORE'] = (matching_data['SCORE'] * 100).round(2).astype(str) + '%'
         matching_data.reset_index(drop=True, inplace=True)
         st.dataframe(matching_data)
 
