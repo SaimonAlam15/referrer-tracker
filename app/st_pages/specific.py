@@ -69,8 +69,6 @@ def job_specific_referrers():
                     'CAREER_LEVEL': data.iloc[i]['CAREER_LEVEL'],
                     'TITLE_OF_LAST_POSITION': data.iloc[i]['TITLE_OF_LAST_POSITION'],
                     'FIELD_OF_EXPERTISE': data.iloc[i]['FIELD_OF_EXPERTISE'],
-                    'INDUSTRY': data.iloc[i]['INDUSTRY'],
-                    'LOCATION': data.iloc[i]['LOCATION'],
                     'RECENTLY_ACTIVE': data.iloc[i]['RECENTLY_ACTIVE'],
                     'HAS_REFERRED': data.iloc[i]['TARGET']
                 })
