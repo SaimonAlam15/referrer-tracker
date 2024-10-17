@@ -1,5 +1,6 @@
 # Classifer Models
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 
 from data import get_data, balance_data, split_data, encode_data
 from queries import MODEL_2_TRAINING_DATA_QUERY
@@ -17,12 +18,16 @@ def process_data(input_df):
 
 
 def train_model(X_train, y_train):
+    # params = {
+    #     'criterion': 'gini', 'max_depth': 20, 'min_samples_leaf': 1,
+    #     'min_samples_split': 5, 'n_estimators': 1000
+    # }
+    # reg = RandomForestClassifier(**params)
     params = {
-        'criterion': 'gini', 'max_depth': 20, 'min_samples_leaf': 1,
-        'min_samples_split': 5, 'n_estimators': 1000
+        'bootstrap': True, 'max_depth': 30, 'min_samples_leaf': 1,
+        'min_samples_split': 5, 'n_estimators': 300
     }
-    reg = RandomForestClassifier(**params)
-    # n_estimators=100, max_depth=20, n_jobs=-1
+    reg = RandomForestRegressor(**params)
     reg.fit(X_train, y_train)
     return reg
 
