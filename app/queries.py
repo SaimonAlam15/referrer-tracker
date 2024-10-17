@@ -89,6 +89,8 @@ MODEL_2_TRAINING_DATA_QUERY = """
     
     select
         c.ID,
+        c.FIRST_NAME,
+        c.LAST_NAME,
         c.EMAIL,
         c.SOURCE,
         c.CAREER_LEVEL,

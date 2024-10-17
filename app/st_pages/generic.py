@@ -33,6 +33,8 @@ def generic_referrers():
         for i, pred in enumerate(y_pred):
             if pred == 1:
                 rows.append({
+                    'FIRST_NAME': data.iloc[i]['FIRST_NAME'],
+                    'LAST_NAME': data.iloc[i]['LAST_NAME'],
                     'EMAIL': data.iloc[i]['EMAIL'],
                     'SOURCE': data.iloc[i]['SOURCE'],
                     'CAREER_LEVEL': data.iloc[i]['CAREER_LEVEL'],
@@ -43,6 +45,7 @@ def generic_referrers():
                 })
         
         matching_data = pd.DataFrame(rows)
+        # matching_data.to_csv('/Users/saimonalam/Documents/predicted_referrers_2.csv', index=False)
         matching_data.sort_values(by='HAS_REFERRED', inplace=True)
         matching_data.reset_index(drop=True, inplace=True)
         st.dataframe(matching_data)
