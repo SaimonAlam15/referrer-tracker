@@ -44,6 +44,7 @@ MODEL_1_TRAINING_DATA_QUERY = """
             j.state as job_state,
             j.remote_job,
             j.location,
+            j.required_skills,
             (
                 case when DATEDIFF(day, c.last_activity_time, current_date()) <= 60 then 1.0::float
                 else 0.0::float

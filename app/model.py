@@ -10,13 +10,13 @@ from queries import MODEL_1_TRAINING_DATA_QUERY
 def encode_data(input_df):
     categorical_columns = [
         'SOURCE', 'CAREER_LEVEL', 'TITLE_OF_LAST_POSITION', 'FIELD_OF_EXPERTISE', 
-        'INDUSTRY', 'LOCATION'
+        'INDUSTRY', 'LOCATION', 'REQUIRED_SKILLS'
     ]
     filtered_df = input_df[input_df['TARGET'] == 1]
     feature_names = []
     cols = []
     for col in categorical_columns:
-        if col in ['FIELD_OF_EXPERTISE', 'LOCATION']:
+        if col in ['FIELD_OF_EXPERTISE', 'LOCATION', 'REQUIRED_SKILLS']:
             value_counts = filtered_df[col].str.split(',').explode().value_counts().nlargest(10)
             cols = [f'{col}_{val}' for val in value_counts.index]
         else:
@@ -34,9 +34,14 @@ def encode_data(input_df):
     input_df = input_df.drop('LOCATION', axis=1)
     input_df = input_df.join(location_df)
 
+    required_skills_df = input_df['REQUIRED_SKILLS'].str.get_dummies(sep=",").add_prefix('REQUIRED_SKILLS_')
+    required_skills_df = required_skills_df.loc[:, required_skills_df.columns.isin(feature_names)]
+    input_df = input_df.drop('REQUIRED_SKILLS', axis=1)
+    input_df = input_df.join(required_skills_df)
+
     new_df = pd.get_dummies(input_df, columns=['SOURCE', 'CAREER_LEVEL', 'TITLE_OF_LAST_POSITION', 'INDUSTRY'])
     new_df = new_df.loc[:, new_df.columns.isin(feature_names) &
-                        ~new_df.columns.str.startswith(('FIELD_OF_EXPERTISE', 'LOCATION'))]
+                        ~new_df.columns.str.startswith(('FIELD_OF_EXPERTISE', 'LOCATION', 'REQUIRED_SKILLS'))]
 
     # df_merged = pd.concat([input_df, new_df]).drop_duplicates(['ID'], keep='last')
     input_df = input_df.drop(['SOURCE', 'CAREER_LEVEL', 'TITLE_OF_LAST_POSITION', 'INDUSTRY'], axis=1).fillna(0)
@@ -49,8 +54,6 @@ def encode_data(input_df):
 
 def process_data(input_df):
     df_merged, feature_names = encode_data(input_df)
-    print('Total rows:', len(df_merged))
-    print('Total columns:', len(df_merged.columns))
     X = df_merged[feature_names]
     y = df_merged['TARGET']
     X_balanced, y_balanced = balance_data(X, y)
