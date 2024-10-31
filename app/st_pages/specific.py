@@ -31,15 +31,28 @@ def job_specific_referrers():
             'Information Technology'
         ]
     )
+    job_skills = st.sidebar.multiselect(
+        'Select Required Job Skills',
+        options=[
+            'Advertising', 'Art & Creative', 'Bookkeeping', 'Brand Strategy', 'Business Strategy', 'Clinical Research', 'Cloud Computing',
+            'Communications', 'Community & Partnerships', 'Compliance', 'Computer Programming', 'Customer Success/CX', 'Cybersecurity',
+            'Data Science', 'DEI', 'Design', 'DevOps', 'Education', 'Engineering', 'Entrepreneurship', 'ESG/CSR', 'Events', 'Fashion',
+            'Finance', 'Fundraising', 'Government', 'Health and Fitness', 'Hospitality', 'Human Resources', 'Insurance', 'Legal', 'Logistics',
+            'Management Consulting', 'Manufacturing', 'Market Research', 'Marketing', 'Media', 'Merchandising', 'Military', 'Nonprofit', 'Operations',
+            'Organizational Development', 'Other', 'Product Management', 'Production, Film', 'Public Relations', 'Recruitment & Talent Acquisition', 'Retail',
+            'Sales & Business Development', 'Social Media', 'Social Services', 'Technology', 'Venture Capital & Private Equity', 'Web', 'Writing, Editing'
+        ]
+    )
     # st.sidebar.button('Predict')
     if st.sidebar.button('Predict'):
-        if not job_location or not job_industry:
-            st.warning('Please select both Job Location(s) and Job Industry.')
+        if not job_location or not job_industry and not job_skills:
+            st.warning('Please select Job Location(s), Job Industry and Required Job Skills.')
             return
         
         data = get_data(TEST_DATA_QUERY)
         data['INDUSTRY'] = job_industry
         data['LOCATION'] = ','.join(job_location)
+        data['REQUIRED_SKILLS'] = ','.join(job_skills)
         encoded_data, _ = encode_data(data)
         
         model, _, _, features = cached_model()
@@ -54,7 +67,7 @@ def job_specific_referrers():
         st.write("Total predictions below 50%:", np.sum(y_pred <= 0.5))
         st.write("Total predictions between 50 and 70%:", np.sum((y_pred > 0.5) & (y_pred <= 0.7)))
         st.write("Total predictions between 70 and 90%:", np.sum((y_pred > 0.7) & (y_pred <= 0.9)))
-        st.write("Total predictions between 90 and 100%:", np.sum((y_pred > 0.9) & (y_pred <= 1.0)))
+        st.write("Total predictions between 90 and 100%:", np.sum((y_pred > 0.9) & (y_pred < 1.0)))
         st.write("Total predictions equal to 1:", np.sum(y_pred == 1.0))
 
         rows = []
