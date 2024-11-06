@@ -34,7 +34,7 @@ def job_specific_referrers():
     job_skills = st.sidebar.multiselect(
         'Select Required Job Skills',
         options=[
-            'Advertising', 'Art & Creative', 'Bookkeeping', 'Brand Strategy', 'Business Strategy', 'Clinical Research', 'Cloud Computing',
+            'Accounting', 'Advertising', 'Art & Creative', 'Bookkeeping', 'Brand Strategy', 'Business Strategy', 'Clinical Research', 'Cloud Computing',
             'Communications', 'Community & Partnerships', 'Compliance', 'Computer Programming', 'Customer Success/CX', 'Cybersecurity',
             'Data Science', 'DEI', 'Design', 'DevOps', 'Education', 'Engineering', 'Entrepreneurship', 'ESG/CSR', 'Events', 'Fashion',
             'Finance', 'Fundraising', 'Government', 'Health and Fitness', 'Hospitality', 'Human Resources', 'Insurance', 'Legal', 'Logistics',
@@ -50,18 +50,37 @@ def job_specific_referrers():
             return
         
         data = get_data(TEST_DATA_QUERY)
+        filter_table_df = data.copy(deep=True)
+
         data['INDUSTRY'] = job_industry
         data['LOCATION'] = ','.join(job_location)
         data['REQUIRED_SKILLS'] = ','.join(job_skills)
+
         encoded_data, _ = encode_data(data)
         
         model, _, _, features = cached_model()
         encoded_data = encoded_data.reindex(columns=features, fill_value=0.0)
+
+        filter_table_df = filter_table_df[
+            (filter_table_df['CITY'].isin(job_location) | filter_table_df['STATE'].isin(job_location)) &
+            (filter_table_df['FIELD_OF_EXPERTISE'].apply(lambda x: any(skill in x.split(',') for skill in job_skills if x)))
+        ]
+        filter_table_df.rename(columns={'TARGET': 'HAS_REFERRED'}, inplace=True)
+        filter_table_df.reset_index(drop=True, inplace=True)
+        filter_table_df.index += 1
+
+        st.header('Filtered by job attributes only')
+        if (len(filter_table_df) == 0):
+            st.error('No matches found based on job attributes.')
+        else:
+            st.dataframe(filter_table_df)
         # y_pred = model.predict(x_test.values)
         # print('Encoded columns', list(encoded_data.columns)[: 20])
         # print('Features', features)
         y_pred = model.predict(encoded_data[features].values)
         # st.write("Predictions:", list(y_pred)[:50])
+
+        st.header('Predicted on the basis of historical data')
         st.write("Total:", len(y_pred))
         st.write("Total predictions equal to 0%:", np.sum(y_pred == 0))
         st.write("Total predictions below 50%:", np.sum(y_pred <= 0.5))
@@ -90,6 +109,7 @@ def job_specific_referrers():
         matching_data.sort_values(by='SCORE', inplace=True, ascending=False)
         matching_data['SCORE'] = (matching_data['SCORE'] * 100).round(2).astype(str) + '%'
         matching_data.reset_index(drop=True, inplace=True)
+        matching_data.index += 1
         st.dataframe(matching_data)
                 
         # Get the top 5 most frequently occurring values for 'CAREER_LEVEL'
