@@ -22,7 +22,7 @@
 
 1. **Make sure the `.env` file exists in root directory**
 
-2. **Launch Docker  on your local machine**
+2. **Launch Docker on your machine**
 
 3. **Run the following command:**
    ```sh
