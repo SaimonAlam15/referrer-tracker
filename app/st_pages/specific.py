@@ -50,6 +50,7 @@ def job_specific_referrers():
             return
         
         data = get_data(TEST_DATA_QUERY)
+        data.rename(columns={'NAME_OF_LAST_COMPANY': 'NAME_OF_CURRENT/LAST_COMPANY'}, inplace=True)
         filter_table_df = data.copy(deep=True)
 
         data['INDUSTRY'] = job_industry
@@ -99,6 +100,7 @@ def job_specific_referrers():
                     'EMAIL': data.iloc[i]['EMAIL'],
                     'SOURCE': data.iloc[i]['SOURCE'],
                     'CAREER_LEVEL': data.iloc[i]['CAREER_LEVEL'],
+                    'NAME_OF_CURRENT/LAST_COMPANY': data.iloc[i]['NAME_OF_CURRENT/LAST_COMPANY'],
                     'TITLE_OF_LAST_POSITION': data.iloc[i]['TITLE_OF_LAST_POSITION'],
                     'FIELD_OF_EXPERTISE': data.iloc[i]['FIELD_OF_EXPERTISE'],
                     'RECENTLY_ACTIVE': data.iloc[i]['RECENTLY_ACTIVE'],

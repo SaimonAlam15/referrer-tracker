@@ -124,6 +124,7 @@ TEST_DATA_QUERY = """
         STATE,
         SOURCE,
         CAREER_LEVEL,
+        NAME_OF_LAST_COMPANY,
         TITLE_OF_LAST_POSITION,
         FIELD_OF_EXPERTISE,
         (
@@ -177,6 +178,7 @@ DATA_ANALYSIS_QUERY = """
             c.LAST_NAME,
             c.SOURCE,
             c.CAREER_LEVEL,
+            c.name_of_last_company,
             c.TITLE_OF_LAST_POSITION,
             c.FIELD_OF_EXPERTISE,
             c.COUNTRY as candidate_country,

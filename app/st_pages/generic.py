@@ -43,6 +43,7 @@ def generic_referrers():
                     'EMAIL': data.iloc[i]['EMAIL'],
                     'SOURCE': data.iloc[i]['SOURCE'],
                     'CAREER_LEVEL': data.iloc[i]['CAREER_LEVEL'],
+                    'NAME_OF_CURRENT/LAST_COMPANY': data.iloc[i]['NAME_OF_LAST_COMPANY'],
                     'TITLE_OF_LAST_POSITION': data.iloc[i]['TITLE_OF_LAST_POSITION'],
                     'FIELD_OF_EXPERTISE': data.iloc[i]['FIELD_OF_EXPERTISE'],
                     'RECENTLY_ACTIVE': data.iloc[i]['RECENTLY_ACTIVE'],

@@ -8,6 +8,7 @@ from queries import DATA_ANALYSIS_QUERY
 def eda():
     st.markdown("<h2 style='text-align: center; color: #aba4a4'>Referrer Data & Stats</h2>", unsafe_allow_html=True)
     data = get_data(DATA_ANALYSIS_QUERY)
+    data.rename(columns={'NAME_OF_LAST_COMPANY': 'NAME_OF_CURRENT/LAST_COMPANY'}, inplace=True)
     data['ID'] = data['ID'].astype(str)
     st.dataframe(data)
 
