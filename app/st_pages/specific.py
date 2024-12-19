@@ -24,7 +24,7 @@ def job_specific_referrers():
         ]
     )
     job_industry = st.sidebar.selectbox(
-        'Select Job Industry',
+        'Select Job Industry*',
         options=[
             'Communications', 'Technology', 'Health Care', 'Education',
             'Financial Services', 'Staffing and Recruiting', 'Real Estate',
@@ -32,7 +32,7 @@ def job_specific_referrers():
         ]
     )
     job_skills = st.sidebar.multiselect(
-        'Select Required Job Skills',
+        'Select Required Job Skills*',
         options=[
             'Accounting', 'Advertising', 'Art & Creative', 'Bookkeeping', 'Brand Strategy', 'Business Strategy', 'Clinical Research', 'Cloud Computing',
             'Communications', 'Community & Partnerships', 'Compliance', 'Computer Programming', 'Customer Success/CX', 'Cybersecurity',
@@ -43,9 +43,10 @@ def job_specific_referrers():
             'Sales & Business Development', 'Social Media', 'Social Services', 'Technology', 'Venture Capital & Private Equity', 'Web', 'Writing, Editing'
         ]
     )
+    score_threshold = st.sidebar.slider('Score Threshold', 0, 100, 80, 5) / 100
     # st.sidebar.button('Predict')
     if st.sidebar.button('Predict'):
-        if not job_location or not job_industry and not job_skills:
+        if not job_industry and not job_skills:
             st.warning('Please select Job Location(s), Job Industry and Required Job Skills.')
             return
         
@@ -54,19 +55,29 @@ def job_specific_referrers():
         filter_table_df = data.copy(deep=True)
 
         data['INDUSTRY'] = job_industry
-        data['LOCATION'] = ','.join(job_location)
         data['REQUIRED_SKILLS'] = ','.join(job_skills)
+
+
+        if job_location:
+            data['LOCATION'] = ','.join(job_location)
 
         encoded_data, _ = encode_data(data)
         
         model, _, _, features = cached_model()
         encoded_data = encoded_data.reindex(columns=features, fill_value=0.0)
 
-        filter_table_df = filter_table_df[
-            (filter_table_df['CITY'].isin(job_location) | filter_table_df['STATE'].isin(job_location)) &
-            (filter_table_df['FIELD_OF_EXPERTISE'].apply(lambda x: any(skill in x.split(',') for skill in job_skills if x)))
-        ]
+        if job_location:
+            filter_table_df = filter_table_df[
+                (filter_table_df['CITY'].isin(job_location) | filter_table_df['STATE'].isin(job_location)) &
+                (filter_table_df['FIELD_OF_EXPERTISE'].apply(lambda x: any(skill in x.split(',') for skill in job_skills if x)))
+            ]
+        else:
+            filter_table_df = filter_table_df[
+                filter_table_df['FIELD_OF_EXPERTISE'].apply(lambda x: any(skill in x.split(',') for skill in job_skills if x))
+            ]
+
         filter_table_df.rename(columns={'TARGET': 'HAS_REFERRED'}, inplace=True)
+        filter_table_df.drop(columns=['INDUSTRY', 'REQUIRED_SKILLS', 'LOCATION'], inplace=True)
         filter_table_df.reset_index(drop=True, inplace=True)
         filter_table_df.index += 1
 
@@ -82,13 +93,6 @@ def job_specific_referrers():
         # st.write("Predictions:", list(y_pred)[:50])
 
         st.header('Predicted on the basis of historical data')
-        st.write("Total:", len(y_pred))
-        st.write("Total predictions equal to 0%:", np.sum(y_pred == 0))
-        st.write("Total predictions below 50%:", np.sum(y_pred <= 0.5))
-        st.write("Total predictions between 50 and 70%:", np.sum((y_pred > 0.5) & (y_pred <= 0.7)))
-        st.write("Total predictions between 70 and 90%:", np.sum((y_pred > 0.7) & (y_pred <= 0.9)))
-        st.write("Total predictions between 90 and 100%:", np.sum((y_pred > 0.9) & (y_pred < 1.0)))
-        st.write("Total predictions equal to 1:", np.sum(y_pred == 1.0))
 
         rows = []
         for i, pred in enumerate(y_pred):
@@ -99,6 +103,8 @@ def job_specific_referrers():
                     'LAST_NAME': data.iloc[i]['LAST_NAME'],
                     'EMAIL': data.iloc[i]['EMAIL'],
                     'SOURCE': data.iloc[i]['SOURCE'],
+                    'CITY': data.iloc[i]['CITY'],
+                    'STATE': data.iloc[i]['STATE'],
                     'CAREER_LEVEL': data.iloc[i]['CAREER_LEVEL'],
                     'NAME_OF_CURRENT/LAST_COMPANY': data.iloc[i]['NAME_OF_CURRENT/LAST_COMPANY'],
                     'TITLE_OF_LAST_POSITION': data.iloc[i]['TITLE_OF_LAST_POSITION'],
@@ -109,10 +115,22 @@ def job_specific_referrers():
         
         matching_data = pd.DataFrame(rows)
         matching_data.sort_values(by='SCORE', inplace=True, ascending=False)
+        matching_data = matching_data[matching_data['SCORE'] >= score_threshold]
         matching_data['SCORE'] = (matching_data['SCORE'] * 100).round(2).astype(str) + '%'
         matching_data.reset_index(drop=True, inplace=True)
         matching_data.index += 1
         st.dataframe(matching_data)
+
+
+        st.write("Total:", len(y_pred))
+        st.write("Total predictions equal to 0%:", np.sum(y_pred == 0))
+        st.write("Total predictions below 50%:", np.sum(y_pred <= 0.5))
+        st.write("Total predictions between 50 and 70%:", np.sum((y_pred > 0.5) & (y_pred <= 0.7)))
+        st.write("Total predictions between 70 and 90%:", np.sum((y_pred > 0.7) & (y_pred <= 0.9)))
+        st.write("Total predictions between 90 and 100%:", np.sum((y_pred > 0.9) & (y_pred < 1.0)))
+        st.write("Total predictions equal to 1:", np.sum(y_pred == 1.0))
+
+        st.header('Analysis of existing data')
                 
         # Get the top 5 most frequently occurring values for 'CAREER_LEVEL'
         top_career_levels = matching_data['CAREER_LEVEL'].value_counts().nlargest(5)
