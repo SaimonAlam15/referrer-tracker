@@ -204,3 +204,81 @@ DATA_ANALYSIS_QUERY = """
             on r.JOB_ID = j.ID
         order by 1
     """
+
+
+ATTRIBUTES_FILTER_QUERY = """
+    with referrerals_by_users as (
+    select
+        ref.ID,
+        ref.JOB_ID,
+        can.EMAIL as CANDIDATE_EMAIL,
+        ref.EMAIL as REFERRRED_EMAIL
+    from IREFERRALS ref
+    join CANDIDATES can 
+        on ref.CANDIDATE_ID = can.ID
+    where CANDIDATE_EMAIL is null
+    ),
+
+    referrals_by_guests as (
+    select
+        ID,
+        JOB_ID,
+        CANDIDATE_EMAIL,
+        EMAIL as REFERRED_EMAIL
+    from IREFERRALS
+    where CANDIDATE_EMAIL is not null
+    ),
+
+    combined_referrals as (
+    select * from referrals_by_guests
+    UNION
+    select * from referrerals_by_users
+    ),
+    
+    unique_referrals as (
+    select
+        ID,
+        JOB_ID,
+        CANDIDATE_EMAIL,
+        REFERRED_EMAIL
+    from (
+        select *,
+            ROW_NUMBER() over (partition by JOB_ID, CANDIDATE_EMAIL, REFERRED_EMAIL order by JOB_ID) as ROW_NUM
+        from combined_referrals
+    ) subquery
+    where ROW_NUM = 1
+),
+potential_referrers as (
+select  
+        c.EMAIL,
+        c.FIRST_NAME,
+        c.LAST_NAME,
+        c.SOURCE,
+        c.CAREER_LEVEL,
+        c.TITLE_OF_LAST_POSITION,
+        c.FIELD_OF_EXPERTISE,
+        c.COUNTRY as candidate_country,
+        c.STATE as candidate_state,
+        c.CITY as candidate_city,
+        c.NAME_OF_LAST_COMPANY,
+        j.ID as JOB_ID,
+        j.required_skills as skills_required_for_job,
+        ( case when j.ID is not null then 'Yes' else 'No' end) as has_referred,
+        ROW_NUMBER() OVER (PARTITION BY email order by first_name, last_name) AS row_num
+    from unique_referrals r
+    right join CANDIDATES c
+        on r.CANDIDATE_EMAIL = c.EMAIL
+    left join JOB_OPENINGS j
+        on r.JOB_ID = j.ID
+     where 
+        j.industry = '{industry}' and
+        j.location = '{location}' and
+        j.required_skills like '%{required_skills}%' or
+        c.state = '{state}' or c.city = '{city}' or
+        c.field_of_expertise like '%{field_of_expertise}%'
+    )
+    select * from potential_referrers
+    where row_num = 1
+    order by JOB_ID
+"""
+

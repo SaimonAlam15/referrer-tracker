@@ -3,12 +3,14 @@ import streamlit as st
 from st_pages.eda import eda
 from st_pages.generic import generic_referrers
 from st_pages.specific import job_specific_referrers
+from st_pages.filtered import filtered
 
 
 pages = {
     "Data Analysis": eda,
     "Referrers - Generic": generic_referrers,
-    "Referrers - Job Specific": job_specific_referrers
+    "Referrers - Job Specific": job_specific_referrers,
+    "Filtered": filtered
 }
 
 
