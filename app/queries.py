@@ -260,9 +260,9 @@ select
         c.COUNTRY as candidate_country,
         c.STATE as candidate_state,
         c.CITY as candidate_city,
-        c.NAME_OF_LAST_COMPANY,
         j.ID as JOB_ID,
         j.required_skills as skills_required_for_job,
+        j.location as job_location,
         ( case when j.ID is not null then 'Yes' else 'No' end) as has_referred,
         ROW_NUMBER() OVER (PARTITION BY email order by first_name, last_name) AS row_num
     from unique_referrals r
@@ -272,13 +272,30 @@ select
         on r.JOB_ID = j.ID
      where 
         j.industry = '{industry}' and
-        j.location = '{location}' and
-        j.required_skills like '%{required_skills}%' or
-        c.state = '{state}' or c.city = '{city}' or
-        c.field_of_expertise like '%{field_of_expertise}%'
+        ARRAY_SIZE(
+          ARRAY_INTERSECTION(
+              SPLIT(j.location, ','),
+              SPLIT('{location}', ',')
+          )
+      ) > 0 and
+        ARRAY_SIZE(
+          ARRAY_INTERSECTION(
+              SPLIT(j.required_skills, ','),
+              SPLIT('{required_skills}', ',')
+          )
+      ) > 0
+        or c.state in {state} or c.city in {city}
+        or ARRAY_SIZE(
+          ARRAY_INTERSECTION(
+              SPLIT(c.field_of_expertise, ','),
+              SPLIT('{field_of_expertise}', ',')
+          )
+      ) > 0
     )
     select * from potential_referrers
     where row_num = 1
     order by JOB_ID
+
+
 """
 
