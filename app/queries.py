@@ -234,7 +234,7 @@ ATTRIBUTES_FILTER_QUERY = """
     UNION
     select * from referrerals_by_users
     ),
-    
+
     unique_referrals as (
     select
         ID,
@@ -247,55 +247,88 @@ ATTRIBUTES_FILTER_QUERY = """
         from combined_referrals
     ) subquery
     where ROW_NUM = 1
-),
-potential_referrers as (
-select  
-        c.EMAIL,
-        c.FIRST_NAME,
-        c.LAST_NAME,
-        c.SOURCE,
-        c.CAREER_LEVEL,
-        c.TITLE_OF_LAST_POSITION,
-        c.FIELD_OF_EXPERTISE,
-        c.COUNTRY as candidate_country,
-        c.STATE as candidate_state,
-        c.CITY as candidate_city,
-        j.ID as JOB_ID,
-        j.required_skills as skills_required_for_job,
-        j.location as job_location,
-        ( case when j.ID is not null then 'Yes' else 'No' end) as has_referred,
-        ROW_NUMBER() OVER (PARTITION BY email order by first_name, last_name) AS row_num
-    from unique_referrals r
-    right join CANDIDATES c
-        on r.CANDIDATE_EMAIL = c.EMAIL
-    left join JOB_OPENINGS j
-        on r.JOB_ID = j.ID
-     where 
-        j.industry = '{industry}' and
-        ARRAY_SIZE(
-          ARRAY_INTERSECTION(
-              SPLIT(j.location, ','),
-              SPLIT('{location}', ',')
-          )
-      ) > 0 and
-        ARRAY_SIZE(
-          ARRAY_INTERSECTION(
-              SPLIT(j.required_skills, ','),
-              SPLIT('{required_skills}', ',')
-          )
-      ) > 0
-        or c.state in {state} or c.city in {city}
-        or ARRAY_SIZE(
-          ARRAY_INTERSECTION(
-              SPLIT(c.field_of_expertise, ','),
-              SPLIT('{field_of_expertise}', ',')
-          )
-      ) > 0
-    )
-    select * from potential_referrers
-    where row_num = 1
-    order by JOB_ID
-
+    ),
+    referrals_leaderboard as (
+        select CANDIDATE_EMAIL, count(*) as total_referrals
+        from unique_referrals
+        group by 1
+        order by 2 desc
+    ),
+    job_requirements as (
+        select u.JOB_ID, u.CANDIDATE_EMAIL,
+        j.REQUIRED_SKILLS,
+        j.LOCATION,
+        j.INDUSTRY
+        from unique_referrals u
+        join JOB_OPENINGS j
+        on u.JOB_ID = j.ID
+    ),
+    agg_requirements as (
+        select 
+            CANDIDATE_EMAIL,
+            listagg(distinct REQUIRED_SKILLS, ',') as skills,
+            listagg(distinct LOCATION, ',') as locations,
+            listagg(distinct INDUSTRY, ',') as industries
+        from job_requirements
+        group by 1
+    ),
+    potential_referrers as (
+    select  
+            c.EMAIL,
+            c.FIRST_NAME,
+            c.LAST_NAME,
+            l.total_referrals,
+            c.CAREER_LEVEL,
+            c.TITLE_OF_LAST_POSITION,
+            c.FIELD_OF_EXPERTISE,
+            c.STATE as candidate_state,
+            c.CITY as candidate_city,
+            j.ID as JOB_ID,
+            a.skills as referred_job_skills,
+            a.locations as referred_job_locations,
+            a.industries as referred_job_industries,
+            ROW_NUMBER() OVER (PARTITION BY email order by first_name, last_name) AS row_num
+        from unique_referrals r
+        right join CANDIDATES c
+            on r.CANDIDATE_EMAIL = c.EMAIL
+        left join JOB_OPENINGS j
+            on r.JOB_ID = j.ID
+        left join referrals_leaderboard l
+            on r.CANDIDATE_EMAIL = l.CANDIDATE_EMAIL
+        left join agg_requirements a
+            on r.CANDIDATE_EMAIL = a.CANDIDATE_EMAIL
+        where
+            c.state in {state} or c.city in {city}
+            or ARRAY_SIZE(
+            ARRAY_INTERSECTION(
+                SPLIT(c.field_of_expertise, ','), 
+                SPLIT('{field_of_expertise}', ',') 
+            )
+        ) > 0
+        or
+            ARRAY_SIZE(
+            ARRAY_INTERSECTION(
+                SPLIT(a.industries, ','), 
+                SPLIT('{industry}', ',') 
+            )
+        ) > 0 
+        or
+            ARRAY_SIZE(
+            ARRAY_INTERSECTION(
+                SPLIT(a.locations, ','), 
+                SPLIT('{location}', ',') 
+            )
+        ) > 0 
+            or ARRAY_SIZE(
+            ARRAY_INTERSECTION(
+                SPLIT(a.skills, ','),  
+                SPLIT('{required_skills}', ',') 
+            )
+        ) > 0
+        )
+        select * from potential_referrers
+        where row_num = 1
+        order by TOTAL_REFERRALS desc NULLS LAST
 
 """
 

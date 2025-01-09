@@ -58,11 +58,21 @@ def filtered():
         data.rename(columns={'NAME_OF_LAST_COMPANY': 'NAME_OF_CURRENT/LAST_COMPANY'}, inplace=True)
         # data.drop(columns=['ROW_NUM'], inplace=True)
 
-
-        st.write("- **Fetch all members matching the given criteria**", ", ".join(job_location))
-        st.write("- **Fetch all members that have referred for jobs matching the given criteria**")
+        st.write('Fetch all members:')
+        st.write(f"- **Located in _{','.join(job_location)}_, or**")
+        st.write(f"- **Posessing some or all of the following skills: _{','.join(job_skills)}_**")
+        st.write("Or those who have referred people for jobs:")
+        st.write(f"- **From the _{job_industry}_ industry, or**")
+        st.write(f"- **Located in _{','.join(job_location)}_**, or")
+        st.write(f"- **Requiring the following skills: _{','.join(job_skills)}_**.")
 
         data.index = np.arange(1, len(data) + 1)
+
+        if 'ROW_NUM' in data.columns:
+            data = data.drop(columns=['ROW_NUM'])
+
+        if 'JOB_ID' in data.columns:
+            data = data.drop(columns=['JOB_ID'])
 
         st.dataframe(data)
 
