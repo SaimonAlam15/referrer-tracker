@@ -298,33 +298,7 @@ ATTRIBUTES_FILTER_QUERY = """
         left join agg_requirements a
             on r.CANDIDATE_EMAIL = a.CANDIDATE_EMAIL
         where
-            c.state in {state} or c.city in {city}
-            or ARRAY_SIZE(
-            ARRAY_INTERSECTION(
-                SPLIT(c.field_of_expertise, ','), 
-                SPLIT('{field_of_expertise}', ',') 
-            )
-        ) > 0
-        or
-            ARRAY_SIZE(
-            ARRAY_INTERSECTION(
-                SPLIT(a.industries, ','), 
-                SPLIT('{industry}', ',') 
-            )
-        ) > 0 
-        or
-            ARRAY_SIZE(
-            ARRAY_INTERSECTION(
-                SPLIT(a.locations, ','), 
-                SPLIT('{location}', ',') 
-            )
-        ) > 0 
-            or ARRAY_SIZE(
-            ARRAY_INTERSECTION(
-                SPLIT(a.skills, ','),  
-                SPLIT('{required_skills}', ',') 
-            )
-        ) > 0
+            {filter}
         )
         select * from potential_referrers
         where row_num = 1
