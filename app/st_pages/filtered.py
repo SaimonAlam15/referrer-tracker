@@ -1,6 +1,5 @@
 import streamlit as st
 
-import pandas as pd
 import numpy as np
 
 from queries import ATTRIBUTES_FILTER_QUERY
@@ -65,7 +64,7 @@ def filtered():
                 SPLIT(a.industries, ','), 
                 SPLIT('{job_industry}', ',') 
             )
-        ) > 0 """
+        ) > 0"""
             },
             {
             'text': f"Members who have referred people for jobs located in {','.join(job_location)}",
@@ -74,7 +73,7 @@ def filtered():
                 SPLIT(a.locations, ','), 
                 SPLIT('{','.join(job_skills)}', ',') 
             )
-        ) > 0 """
+        ) > 0"""
             },
             {
             'text': f"Members who have referred people for jobs requiring the following skills: {','.join(job_skills)}",
@@ -92,7 +91,7 @@ def filtered():
             st.session_state.query_steps = query_steps
 
         def add_query_step():
-            st.session_state.query_steps.append({'filter': '', 'condition': 'AND'})
+            st.session_state.query_steps.append({'filter': '', 'condition': ''})
 
         def delete_query_step(index):
             st.session_state.query_steps.pop(index)
@@ -111,73 +110,53 @@ def filtered():
                 if st.button('X', key=f'delete_{i}'):
                     delete_query_step(i)
 
-        # for step in st.session_state.query_steps:
-        #     if filter_string:
-        #         filter_string += f" {step['condition']} "
-        #         filter_string += step['filter']
-
         st.sidebar.button('Add Step', on_click=add_query_step)
-
-        print('Filter', st.session_state.query_steps)
 
         def build_filter_string(steps, options):
             filter_str = ""
-            total_steps = len(steps)
             for i, step in enumerate(steps):
                 for option in options:
                     if step['filter'] == option['text']:
-                        if i == total_steps - 1:
+                        if i == 0:
                             filter_str += f"{option['sql']}"
                         else:
-                            filter_str += f"{option['sql']} {step['condition']} "
+                            filter_str += f" {step['condition']} {option['sql']}"
                         break
             return filter_str
 
+        print('Filter', st.session_state.query_steps)
         filter_string = build_filter_string(st.session_state.query_steps, filter_options)
-
-
         print('Query String: ', filter_string)
     
-    if st.sidebar.button('Fetch'):
-        if not job_location or not job_industry or not job_skills:
-            st.warning('Please select Job Location(s), Job Industry and Required Job Skills.')
-            return
+    col1, col2, col3 = st.sidebar.columns([1, 1, 1])
+    with col2:
+        if st.button('Fetch'):
+            if not job_location or not job_industry or not job_skills:
+                st.warning('Please select Job Location(s), Job Industry and Required Job Skills.')
+                return
         
-        if not filter_string:
-            st.warning('Please provide at least 1 filtering criterion.')
-            return
 
-        query = ATTRIBUTES_FILTER_QUERY.format(
-            # industry = job_industry,
-            # location = ','.join(job_location),
-            # required_skills = ','.join(job_skills),
-            # state = location_filter,
-            # city = location_filter,
-            # field_of_expertise = ','.join(job_skills)
-            filter = filter_string
-        )
-        print('Query:', query)
+            if not filter_string:
+                st.warning('Please provide at least 1 filtering criterion.')
+                return
 
-        data = get_data(query)
-        data.rename(columns={'NAME_OF_LAST_COMPANY': 'NAME_OF_CURRENT/LAST_COMPANY'}, inplace=True)
-        # data.drop(columns=['ROW_NUM'], inplace=True)
+            query = ATTRIBUTES_FILTER_QUERY.format(
+                filter = filter_string
+            )
 
-        # st.write('Fetch all members:')
-        # st.write(f"- **Located in _{','.join(job_location)}_, or**")
-        # st.write(f"- **Posessing some or all of the following skills: _{','.join(job_skills)}_**")
-        # st.write("Or those who have referred people for jobs:")
-        # st.write(f"- **From the _{job_industry}_ industry, or**")
-        # st.write(f"- **Located in _{','.join(job_location)}_**, or")
-        # st.write(f"- **Requiring the following skills: _{','.join(job_skills)}_**.")
+            print('Query:', query)
 
-        data.index = np.arange(1, len(data) + 1)
+            data = get_data(query)
+            data.rename(columns={'NAME_OF_LAST_COMPANY': 'NAME_OF_CURRENT/LAST_COMPANY'}, inplace=True)
 
-        if 'ROW_NUM' in data.columns:
-            data = data.drop(columns=['ROW_NUM'])
+            data.index = np.arange(1, len(data) + 1)
 
-        if 'JOB_ID' in data.columns:
-            data = data.drop(columns=['JOB_ID'])
+            if 'ROW_NUM' in data.columns:
+                data = data.drop(columns=['ROW_NUM'])
 
-        st.dataframe(data)
+            if 'JOB_ID' in data.columns:
+                data = data.drop(columns=['JOB_ID'])
 
-        st.write('Total number of potential referrers:', data.shape[0])
+            st.dataframe(data)
+
+            st.write('Total number of potential referrers:', data.shape[0])
