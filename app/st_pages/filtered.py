@@ -128,35 +128,33 @@ def filtered():
         filter_string = build_filter_string(st.session_state.query_steps, filter_options)
         print('Query String: ', filter_string)
     
-    col1, col2, col3 = st.sidebar.columns([1, 1, 1])
-    with col2:
-        if st.button('Fetch'):
-            if not job_location or not job_industry or not job_skills:
-                st.warning('Please select Job Location(s), Job Industry and Required Job Skills.')
-                return
-        
+    if st.sidebar.button('Fetch'):
+        if not job_location or not job_industry or not job_skills:
+            st.warning('Please select Job Location(s), Job Industry and Required Job Skills.')
+            return
 
-            if not filter_string:
-                st.warning('Please provide at least 1 filtering criterion.')
-                return
 
-            query = ATTRIBUTES_FILTER_QUERY.format(
-                filter = filter_string
-            )
+        if not filter_string:
+            st.warning('Please provide at least 1 filtering criterion.')
+            return
 
-            print('Query:', query)
+        query = ATTRIBUTES_FILTER_QUERY.format(
+            filter = filter_string
+        )
 
-            data = get_data(query)
-            data.rename(columns={'NAME_OF_LAST_COMPANY': 'NAME_OF_CURRENT/LAST_COMPANY'}, inplace=True)
+        print('Query:', query)
 
-            data.index = np.arange(1, len(data) + 1)
+        data = get_data(query)
+        data.rename(columns={'NAME_OF_LAST_COMPANY': 'NAME_OF_CURRENT/LAST_COMPANY'}, inplace=True)
 
-            if 'ROW_NUM' in data.columns:
-                data = data.drop(columns=['ROW_NUM'])
+        data.index = np.arange(1, len(data) + 1)
 
-            if 'JOB_ID' in data.columns:
-                data = data.drop(columns=['JOB_ID'])
+        if 'ROW_NUM' in data.columns:
+            data = data.drop(columns=['ROW_NUM'])
 
-            st.dataframe(data)
+        if 'JOB_ID' in data.columns:
+            data = data.drop(columns=['JOB_ID'])
 
-            st.write('Total number of potential referrers:', data.shape[0])
+        st.dataframe(data)
+
+        st.write('Total number of potential referrers:', data.shape[0])
