@@ -20,7 +20,7 @@ def job_specific_referrers():
         options=[
             'Remote', 'New York', 'CT', 'TX', 'Austin', 'Greenwich',
             'San Francisco', 'Miami', 'Remote/Various Locations', 'Remote/Hybrid',
-            'Toronto', 'Philadelphia'
+            'Toronto', 'Philadelphia','Kansas City', 'Los Angeles', 'Chicago', 'Boston',
         ]
     )
     job_industry = st.sidebar.selectbox(
@@ -57,7 +57,7 @@ def job_specific_referrers():
         data['INDUSTRY'] = job_industry
         data['REQUIRED_SKILLS'] = ','.join(job_skills)
 
-
+        
         if job_location:
             data['LOCATION'] = ','.join(job_location)
 

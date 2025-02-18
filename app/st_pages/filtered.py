@@ -13,7 +13,7 @@ def filtered():
         options=[
             'Remote', 'New York', 'CT', 'TX', 'Austin', 'Greenwich',
             'San Francisco', 'Miami', 'Remote/Various Locations', 'Remote/Hybrid',
-            'Toronto', 'Philadelphia'
+            'Toronto', 'Philadelphia', 'Kansas City', 'Los Angeles', 'Chicago', 'Boston',
         ]
     )
     job_industry = st.sidebar.selectbox(
